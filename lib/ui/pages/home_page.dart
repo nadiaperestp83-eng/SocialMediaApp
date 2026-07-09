@@ -20,40 +20,40 @@ class HomePage extends ConsumerWidget {
 
     final feedState = ref.watch(feedProvider);
 
-    return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Column(
-              children: [
-                const SizedBox(height: 12),
-                _buildCustomAppBar(context),
-                const SizedBox(height: 18),
-                feedState.when(
-                  data: (posts) => Column(
-                    children: posts
-                        .map(
-                          (post) => FacebookPostCard(
-                            post: post,
-                            onToggleLike: (liked) => ref
-                                .read(feedProvider.notifier)
-                                .toggleLike(post.id, liked),
-                          ),
-                        )
-                        .toList(),
-                  ),
-                  loading: () => const Padding(
-                    padding: EdgeInsets.only(top: 40),
-                    child: Center(child: CircularProgressIndicator()),
-                  ),
-                  error: (err, stack) => Padding(
-                    padding: const EdgeInsets.only(top: 40),
-                    child: Center(child: Text('Erro ao carregar feed: $err')),
-                  ),
+    // Sem Scaffold aqui de propósito: o único Scaffold da árvore é o do
+    // MainScaffold (ShellRoute), que já contém o Drawer.
+    return SafeArea(
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Column(
+            children: [
+              const SizedBox(height: 12),
+              _buildCustomAppBar(context),
+              const SizedBox(height: 18),
+              feedState.when(
+                data: (posts) => Column(
+                  children: posts
+                      .map(
+                        (post) => FacebookPostCard(
+                          post: post,
+                          onToggleLike: (liked) => ref
+                              .read(feedProvider.notifier)
+                              .toggleLike(post.id, liked),
+                        ),
+                      )
+                      .toList(),
                 ),
-              ],
-            ),
+                loading: () => const Padding(
+                  padding: EdgeInsets.only(top: 40),
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+                error: (err, stack) => Padding(
+                  padding: const EdgeInsets.only(top: 40),
+                  child: Center(child: Text('Erro ao carregar feed: $err')),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -64,11 +64,9 @@ class HomePage extends ConsumerWidget {
     return CustomAppBar(
       child: Row(
         children: [
-          Builder(
-            builder: (innerContext) => IconButton(
-              icon: const Icon(Icons.menu_rounded),
-              onPressed: () => Scaffold.of(innerContext).openDrawer(),
-            ),
+          IconButton(
+            icon: const Icon(Icons.menu_rounded),
+            onPressed: () => Scaffold.of(context).openDrawer(),
           ),
           const Spacer(),
           Image.asset("assets/images/ic_notification.png", width: 24, height: 24),
