@@ -26,7 +26,7 @@ dev_dependencies:
   flutter_lints: ^4.0.0
 
 dependency_overrides:
-  app_links: ^7.1.0   # 👈 força a versão compatível
+  app_links: ^6.3.0   # compatível com Dart 3.5 (Flutter 3.24.0)
 
 flutter:
   uses-material-design: true
