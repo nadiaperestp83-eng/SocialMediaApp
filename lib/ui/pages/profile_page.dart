@@ -1,28 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'package:social_media_app/app/configs/colors.dart';
 import 'package:social_media_app/app/configs/theme.dart';
-import 'package:social_media_app/ui/bloc/gallery_profile_cubit.dart';
+import 'package:social_media_app/core/providers/repository_providers.dart';
+import 'package:social_media_app/data/gallery_model.dart';
+import 'package:social_media_app/domain/entities/friendship_entity.dart';
 
-class ProfilePage extends StatelessWidget {
+const _mockProfileUserId = 'toa_heftiba';
+
+final _profileGalleryProvider = FutureProvider<List<GalleryModel>>((ref) async {
+  // Mantido temporariamente vazio. Troque por um GalleryRepository real
+  // quando o Supabase estiver conectado.
+  return const [];
+});
+
+final _friendshipStatusProvider =
+    FutureProvider.autoDispose<FriendshipStatus>((ref) async {
+  final repo = ref.watch(friendsRepositoryProvider);
+  return repo.getStatus(_mockProfileUserId);
+});
+
+class ProfilePage extends ConsumerWidget {
   const ProfilePage({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.dark,
       ),
     );
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.whiteColor,
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => Navigator.of(context).maybePop(),
           icon: const Icon(
             Icons.arrow_back_ios_new_rounded,
             size: 24,
@@ -65,11 +83,11 @@ class ProfilePage extends StatelessWidget {
                 const SizedBox(height: 24),
                 _buildDescription(),
                 const SizedBox(height: 24),
-                _buildButtonAction(),
+                _buildFriendshipAction(ref),
                 const SizedBox(height: 30),
                 _buildTabBar(),
                 const SizedBox(height: 24),
-                _buildGridList(context),
+                _buildGridList(context, ref),
               ],
             ),
           ),
@@ -78,64 +96,63 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  BlocProvider<GalleryProfileCubit> _buildGridList(BuildContext context) {
-    return BlocProvider(
-      create: (context) => GalleryProfileCubit()..getGalleryProfile(),
-      child: BlocBuilder<GalleryProfileCubit, GalleryProfileState>(
-        builder: (_, state) {
-          if (state is GalleryProfileError) {
-            return Center(child: Text(state.message));
-          } else if (state is GalleryProfileLoaded) {
-            return SizedBox(
-              height: 400,
-              width: double.infinity,
-              child: GridView.count(
-                crossAxisCount: 3,
-                crossAxisSpacing: 6,
-                mainAxisSpacing: 6,
-                childAspectRatio: 0.62,
-                physics: const BouncingScrollPhysics(),
-                children: state.galleryProfiles
-                    .map((gallery) => Stack(
-                          alignment: Alignment.bottomCenter,
-                          children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(24),
-                                image: DecorationImage(
-                                  image: NetworkImage(
-                                    gallery.image,
-                                  ),
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
+  Widget _buildGridList(BuildContext context, WidgetRef ref) {
+    final galleryAsync = ref.watch(_profileGalleryProvider);
+
+    return galleryAsync.when(
+      data: (galleries) {
+        if (galleries.isEmpty) {
+          return const SizedBox(
+            height: 100,
+            child: Center(child: Text('Nenhuma foto ainda.')),
+          );
+        }
+        return SizedBox(
+          height: 400,
+          width: double.infinity,
+          child: GridView.count(
+            crossAxisCount: 3,
+            crossAxisSpacing: 6,
+            mainAxisSpacing: 6,
+            childAspectRatio: 0.62,
+            physics: const BouncingScrollPhysics(),
+            children: galleries
+                .map((gallery) => Stack(
+                      alignment: Alignment.bottomCenter,
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(24),
+                            image: DecorationImage(
+                              image: NetworkImage(gallery.image),
+                              fit: BoxFit.cover,
                             ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 6,
-                                horizontal: 10,
-                              ),
-                              margin: const EdgeInsets.only(bottom: 12),
-                              decoration: BoxDecoration(
-                                color: AppColors.whiteColor,
-                                borderRadius: BorderRadius.circular(24),
-                              ),
-                              child: Text(
-                                gallery.like,
-                                style: AppTheme.blackTextStyle.copyWith(
-                                    fontWeight: AppTheme.bold, fontSize: 10),
-                              ),
-                            ),
-                          ],
-                        ))
-                    .toList(),
-              ),
-            );
-          } else {
-            return const Center(child: CircularProgressIndicator());
-          }
-        },
-      ),
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 6,
+                            horizontal: 10,
+                          ),
+                          margin: const EdgeInsets.only(bottom: 12),
+                          decoration: BoxDecoration(
+                            color: AppColors.whiteColor,
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          child: Text(
+                            gallery.like,
+                            style: AppTheme.blackTextStyle.copyWith(
+                                fontWeight: AppTheme.bold, fontSize: 10),
+                          ),
+                        ),
+                      ],
+                    ))
+                .toList(),
+          ),
+        );
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (err, stack) => Center(child: Text('Erro: $err')),
     );
   }
 
@@ -144,7 +161,7 @@ class ProfilePage extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Text(
-          "Photos",
+          "Fotos",
           style: AppTheme.blackTextStyle.copyWith(
             fontWeight: AppTheme.bold,
             fontSize: 18,
@@ -152,7 +169,7 @@ class ProfilePage extends StatelessWidget {
         ),
         const SizedBox(width: 24),
         Text(
-          "Video",
+          "Vídeos",
           style: AppTheme.blackTextStyle.copyWith(
             fontWeight: AppTheme.bold,
             fontSize: 18,
@@ -161,7 +178,7 @@ class ProfilePage extends StatelessWidget {
         ),
         const SizedBox(width: 24),
         Text(
-          "Tagged",
+          "Marcações",
           style: AppTheme.blackTextStyle.copyWith(
             fontWeight: AppTheme.bold,
             fontSize: 18,
@@ -174,39 +191,17 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  Row _buildButtonAction() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        ElevatedButton(
-          onPressed: () {},
-          style: ElevatedButton.styleFrom(
-            primary: AppColors.greenColor,
-            minimumSize: const Size(120, 45),
-            elevation: 8,
-            shadowColor: AppColors.primaryColor.withOpacity(0.3),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-          child: Text('Follow',
-              style: AppTheme.whiteTextStyle
-                  .copyWith(fontWeight: AppTheme.semiBold)),
-        ),
-        const SizedBox(width: 12),
-        Container(
-          width: 45,
-          height: 45,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: AppColors.greyColor.withOpacity(0.17),
-            image: const DecorationImage(
-              scale: 2.3,
-              image: AssetImage("assets/images/ic_inbox.png"),
-            ),
-          ),
-        )
-      ],
+  Widget _buildFriendshipAction(WidgetRef ref) {
+    final statusAsync = ref.watch(_friendshipStatusProvider);
+
+    return statusAsync.when(
+      data: (status) => _FriendshipButton(status: status, ref: ref),
+      loading: () => const SizedBox(
+        height: 45,
+        width: 120,
+        child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+      ),
+      error: (err, stack) => const SizedBox.shrink(),
     );
   }
 
@@ -226,7 +221,7 @@ class ProfilePage extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              "Following",
+              "Seguindo",
               style: AppTheme.blackTextStyle.copyWith(
                 fontWeight: AppTheme.regular,
                 color: AppColors.greyColor,
@@ -246,7 +241,7 @@ class ProfilePage extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              "Followers",
+              "Amigos",
               style: AppTheme.blackTextStyle.copyWith(
                 fontWeight: AppTheme.regular,
                 color: AppColors.greyColor,
@@ -266,7 +261,7 @@ class ProfilePage extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              "Likes",
+              "Curtidas",
               style: AppTheme.blackTextStyle.copyWith(
                 fontWeight: AppTheme.regular,
                 color: AppColors.greyColor,
@@ -298,6 +293,92 @@ class ProfilePage extends StatelessWidget {
           fit: BoxFit.cover,
         ),
       ),
+    );
+  }
+}
+
+class _FriendshipButton extends StatelessWidget {
+  final FriendshipStatus status;
+  final WidgetRef ref;
+
+  const _FriendshipButton({required this.status, required this.ref});
+
+  String get _label {
+    switch (status) {
+      case FriendshipStatus.none:
+        return 'Adicionar amigo';
+      case FriendshipStatus.pendingSent:
+        return 'Cancelar solicitação';
+      case FriendshipStatus.pendingReceived:
+        return 'Responder';
+      case FriendshipStatus.friends:
+        return 'Amigos';
+    }
+  }
+
+  Color get _color {
+    switch (status) {
+      case FriendshipStatus.friends:
+        return AppColors.greyColor;
+      case FriendshipStatus.pendingSent:
+        return AppColors.greyColor;
+      default:
+        return AppColors.greenColor;
+    }
+  }
+
+  Future<void> _handleTap() async {
+    final repo = ref.read(friendsRepositoryProvider);
+
+    switch (status) {
+      case FriendshipStatus.none:
+        await repo.sendFriendRequest(_mockProfileUserId);
+        break;
+      case FriendshipStatus.pendingSent:
+        await repo.cancelRequest(_mockProfileUserId);
+        break;
+      case FriendshipStatus.pendingReceived:
+      case FriendshipStatus.friends:
+        break;
+    }
+    ref.invalidate(_friendshipStatusProvider);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        ElevatedButton(
+          onPressed: _handleTap,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: _color,
+            minimumSize: const Size(160, 45),
+            elevation: 8,
+            shadowColor: AppColors.primaryColor.withOpacity(0.3),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          child: Text(
+            _label,
+            style: AppTheme.whiteTextStyle.copyWith(fontWeight: AppTheme.semiBold),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Container(
+          width: 45,
+          height: 45,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: AppColors.greyColor.withOpacity(0.17),
+            image: const DecorationImage(
+              scale: 2.3,
+              image: AssetImage("assets/images/ic_inbox.png"),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
