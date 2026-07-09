@@ -30,13 +30,17 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Clean project
+      - name: Clean and Prepare Build
         run: |
           flutter clean
-          cd android
-          chmod +x gradlew
-          ./gradlew clean
-          cd ..
+          # Verifica se a pasta android existe antes de tentar entrar
+          if [ -d "android" ]; then
+            cd android
+            # Garante permissão para o gradlew de forma segura
+            chmod +x gradlew || true
+            ./gradlew clean
+            cd ..
+          fi
 
       - name: Build APK (debug)
         run: flutter build apk --debug
