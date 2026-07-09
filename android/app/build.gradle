@@ -42,7 +42,8 @@ android {
 
     defaultConfig {
         applicationId "com.rrdhoi.social_media_app"
-        minSdkVersion 21
+        // Corrigido para utilizar a variável do Flutter
+        minSdkVersion flutter.minSdkVersion
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
