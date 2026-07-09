@@ -6,8 +6,6 @@ class AppColors {
 
   static const Color backgroundColor = Color(0xffe9e9e9);
 
-  // static const Color borderColor = Color(0xFFededed);
-
   static const Color whiteColor = Color(0xFFfafafa);
   static const Color purpleColor = Color(0xFF7D50F0);
   static const Color greenColor = Color(0xFF57CA8C);
@@ -19,4 +17,6 @@ class AppColors {
   static const Color greyTextColor = Color(0xFF9698A9);
 
   static const Color backgroundColorDark = Color(0xFF303030);
+
+  static const Color dangerColor = Color(0xFFE24C4C);
 }
