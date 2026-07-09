@@ -7,6 +7,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:social_media_app/app/configs/theme.dart';
 import 'package:social_media_app/app/resources/constant/named_routes.dart';
 import 'package:social_media_app/core/config/supabase_config.dart';
+import 'package:social_media_app/ui/pages/chat_conversation_page.dart';
 import 'package:social_media_app/ui/pages/chat_page.dart';
 import 'package:social_media_app/ui/pages/forgot_password_page.dart';
 import 'package:social_media_app/ui/pages/friends_page.dart';
@@ -36,6 +37,13 @@ final _router = GoRouter(
     GoRoute(
       path: NamedRoutes.resetPasswordScreen,
       builder: (context, state) => ResetPasswordPage(email: state.uri.queryParameters['email'] ?? ''),
+    ),
+    GoRoute(
+      path: NamedRoutes.chatConversationScreen,
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => ChatConversationPage(
+        otherUserId: state.uri.queryParameters['userId'] ?? '',
+      ),
     ),
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) => MainScaffold(navigationShell: navigationShell),
