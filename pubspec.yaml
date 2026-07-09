@@ -16,7 +16,7 @@ dependencies:
 
   flutter_riverpod: 2.6.1
   go_router: 14.6.2
-  supabase_flutter: ^2.8.0
+  supabase_flutter: 2.8.0
   flutter_dotenv: 5.2.1
   cached_network_image: 3.4.1
 
@@ -26,7 +26,7 @@ dev_dependencies:
   flutter_lints: ^4.0.0
 
 dependency_overrides:
-  app_links: ^6.4.0   # 👈 Força a versão compatível
+  app_links: ^7.1.0   # 👈 força a versão compatível
 
 flutter:
   uses-material-design: true
