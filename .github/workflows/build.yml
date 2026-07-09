@@ -36,16 +36,13 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Clean Gradle Cache
+      - name: Clean Cache
         run: |
+          flutter clean
           rm -rf ~/.gradle/caches/
-          rm -rf android/.gradle/
-
-      - name: Initialize Gradle Wrapper
-        working-directory: android
-        run: ./gradlew wrapper
 
       - name: Build APK (debug)
+        # Removemos o comando do wrapper e deixamos o Flutter gerenciar o Gradle
         run: flutter build apk --debug --target-platform android-arm64
 
       - name: Upload APK
