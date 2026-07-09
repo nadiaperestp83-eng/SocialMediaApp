@@ -18,21 +18,26 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
+          flutter-version: '3.24.0'
           channel: 'stable'
           cache: true
 
       - name: Create .env from GitHub Secrets
         run: |
-          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" > .env
+          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> .env
           echo "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> .env
-          echo "----- .env gerado (chaves, sem valores) -----"
-          cut -d '=' -f1 .env
 
       - name: Install dependencies
         run: flutter pub get
 
       - name: Build APK (debug)
-        run: flutter build apk --debug --android-skip-build-dependency-validation --target-platform android-arm64
+        # Adicionamos -Pandroid.ndkVersion=26.1.10909125 para forçar uma versão 
+        # estável e evitar downloads corrompidos do NDK
+        run: |
+          flutter build apk --debug \
+          --android-skip-build-dependency-validation \
+          --target-platform android-arm64 \
+          --build-arg="-Pandroid.ndkVersion=26.1.10909125"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
