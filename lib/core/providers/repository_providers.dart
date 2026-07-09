@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:social_media_app/core/providers/supabase_providers.dart';
@@ -42,6 +44,23 @@ class FeedNotifier extends StateNotifier<AsyncValue<List<PostEntity>>> {
 
   Future<void> toggleLike(String postId, bool like) async {
     await _repository.toggleLike(postId: postId, like: like);
+  }
+
+  /// Publica um novo post e o insere no topo do feed local imediatamente.
+  Future<PostEntity> createPost({
+    required String caption,
+    Uint8List? imageBytes,
+    String? imageFileName,
+  }) async {
+    final newPost = await _repository.createPost(
+      caption: caption,
+      imageBytes: imageBytes,
+      imageFileName: imageFileName,
+    );
+
+    final current = state.valueOrNull ?? const <PostEntity>[];
+    state = AsyncValue.data([newPost, ...current]);
+    return newPost;
   }
 }
 
