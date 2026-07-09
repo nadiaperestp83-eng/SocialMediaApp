@@ -33,8 +33,8 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
             name: _nameController.text.trim(),
           );
       if (mounted) context.go(NamedRoutes.homeScreen);
-    } catch (_) {
-      setState(() => _error = 'Não foi possível criar a conta. Tente outro e-mail.');
+    } catch (e) {
+      setState(() => _error = 'ERRO REAL (diagnóstico): $e');
     } finally {
       if (mounted) setState(() => _loading = false);
     }
