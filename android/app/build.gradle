@@ -24,8 +24,8 @@ if (flutterVersionName == null) {
 
 android {
     namespace "com.rrdhoi.social_media_app"
-    compileSdk flutter.compileSdkVersion
-    ndkVersion flutter.ndkVersion
+    compileSdk = 36
+    ndkVersion = "27.0.12077973"
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -42,8 +42,7 @@ android {
 
     defaultConfig {
         applicationId "com.rrdhoi.social_media_app"
-        // Corrigido para utilizar a variável do Flutter
-        minSdkVersion flutter.minSdkVersion
+        minSdkVersion 21
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
