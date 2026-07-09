@@ -30,7 +30,7 @@ dev_dependencies:
   flutter_lints: ^4.0.0
 
 dependency_overrides:
-  app_links: ^7.1.0
+  app_links: 7.0.0   # 👈 fixa exatamente 7.0.0 (não ^)
 flutter:
   uses-material-design: true
   assets:
