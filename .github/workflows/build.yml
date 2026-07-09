@@ -23,8 +23,10 @@ jobs:
 
       - name: Create .env from GitHub Secrets
         run: |
-          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> .env
+          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" > .env
           echo "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> .env
+          echo "----- .env gerado (chaves, sem valores) -----"
+          cut -d '=' -f1 .env
 
       - name: Install dependencies
         run: flutter pub get
