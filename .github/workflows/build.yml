@@ -18,7 +18,7 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.0'
+          flutter-version: '3.32.0'
           channel: 'stable'
           cache: true
 
@@ -30,8 +30,5 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Clean Project
-        run: flutter clean
-
       - name: Build APK (debug)
-        run: flutter build apk --debug --verbose
+        run: flutter build apk --debug
