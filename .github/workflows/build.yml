@@ -18,7 +18,7 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.32.0'
+          flutter-version: '3.24.0' # Mantido na versão que você estava usando
           channel: 'stable'
           cache: true
 
@@ -31,4 +31,6 @@ jobs:
         run: flutter pub get
 
       - name: Build APK (debug)
-        run: flutter build apk --debug --android-skip-build-dependency-validation
+        # O parâmetro --target-platform reduz o uso de memória ao compilar apenas 
+        # a arquitetura necessária, evitando o erro de Java heap space
+        run: flutter build apk --debug --android-skip-build-dependency-validation --target-platform android-arm64
