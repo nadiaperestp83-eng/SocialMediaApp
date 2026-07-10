@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -29,8 +31,6 @@ Future<void> main() async {
   runApp(const ProviderScope(child: MyApp()));
 }
 
-/// Tela exibida só se o build foi feito sem os --dart-define do Supabase.
-/// Evita o app crashar sem explicação nenhuma.
 class _MissingConfigApp extends StatelessWidget {
   const _MissingConfigApp();
 
@@ -57,11 +57,43 @@ class _MissingConfigApp extends StatelessWidget {
   }
 }
 
+/// Faz o GoRouter reavaliar as rotas sempre que o estado de autenticação
+/// do Supabase mudar (login, logout, refresh de sessão).
+class _AuthRefreshListenable extends ChangeNotifier {
+  late final StreamSubscription<AuthState> _subscription;
+
+  _AuthRefreshListenable(Stream<AuthState> stream) {
+    _subscription = stream.listen((_) => notifyListeners());
+  }
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
+  }
+}
+
+const _publicRoutes = {
+  NamedRoutes.loginScreen,
+  NamedRoutes.signUpScreen,
+  NamedRoutes.forgotPasswordScreen,
+  NamedRoutes.resetPasswordScreen,
+};
+
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
 final _router = GoRouter(
   navigatorKey: _rootNavigatorKey,
   initialLocation: NamedRoutes.loginScreen,
+  refreshListenable: _AuthRefreshListenable(Supabase.instance.client.auth.onAuthStateChange),
+  redirect: (context, state) {
+    final loggedIn = Supabase.instance.client.auth.currentSession != null;
+    final onPublicRoute = _publicRoutes.contains(state.matchedLocation);
+
+    if (!loggedIn && !onPublicRoute) return NamedRoutes.loginScreen;
+    if (loggedIn && onPublicRoute) return NamedRoutes.homeScreen;
+    return null;
+  },
   routes: [
     GoRoute(path: NamedRoutes.loginScreen, builder: (context, state) => const LoginPage()),
     GoRoute(path: NamedRoutes.signUpScreen, builder: (context, state) => const SignUpPage()),
