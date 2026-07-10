@@ -15,7 +15,7 @@ final postsRepositoryProvider = Provider<PostsRepository>((ref) {
 });
 
 final friendsRepositoryProvider = Provider<FriendsRepository>((ref) {
-  return InMemoryFriendsRepository();
+  return SupabaseFriendsRepository(client: ref.watch(supabaseClientProvider));
 });
 
 final feedProvider =
@@ -46,7 +46,6 @@ class FeedNotifier extends StateNotifier<AsyncValue<List<PostEntity>>> {
     await _repository.toggleLike(postId: postId, like: like);
   }
 
-  /// Publica um novo post e o insere no topo do feed local imediatamente.
   Future<PostEntity> createPost({
     required String caption,
     Uint8List? imageBytes,
