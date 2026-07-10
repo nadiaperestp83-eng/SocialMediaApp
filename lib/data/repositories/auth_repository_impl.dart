@@ -34,20 +34,20 @@ class AuthRepositoryImpl implements AuthRepository {
     required String password,
     required String name,
   }) async {
-    final response = await _client.auth.signUp(email: email, password: password);
-    final userId = response.user?.id;
-    if (userId == null) throw AuthException('Falha ao criar conta.');
+    // O nome vai nos metadados do próprio usuário; um trigger no banco
+    // (handle_new_user) cria a linha em profiles automaticamente e de
+    // forma atômica junto com o cadastro — sem chamada extra no cliente.
+    final response = await _client.auth.signUp(
+      email: email,
+      password: password,
+      data: {'name': name},
+    );
 
-    final username = await _client.rpc('generate_unique_username', params: {'p_base': name}) as String;
-
-    await _client.from('profiles').insert({'id': userId, 'name': name, 'username': username});
+    if (response.user == null) throw AuthException('Falha ao criar conta.');
   }
 
   @override
   Future<void> requestPasswordRecovery(String email) async {
-    // Envia um código OTP por e-mail (não um link) — configurar o template
-    // de "Reset Password" no Supabase Dashboard para usar {{ .Token }}
-    // em vez de {{ .ConfirmationURL }}. Sem redirect, sem deep link.
     await _client.auth.resetPasswordForEmail(email);
   }
 
