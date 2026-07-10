@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import 'package:social_media_app/app/configs/colors.dart';
 import 'package:social_media_app/app/configs/theme.dart';
 import 'package:social_media_app/core/providers/chat_providers.dart';
-import 'package:social_media_app/ui/widgets/settings_bottom_sheet.dart';
 
 class MainScaffold extends ConsumerWidget {
   final StatefulNavigationShell navigationShell;
@@ -20,28 +19,6 @@ class MainScaffold extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.whiteColor,
-      drawer: Drawer(
-        backgroundColor: AppColors.whiteColor,
-        child: SafeArea(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: [
-              DrawerHeader(
-                child: Text('Menu',
-                    style: AppTheme.blackTextStyle.copyWith(fontSize: 20, fontWeight: AppTheme.bold)),
-              ),
-              ListTile(
-                leading: const Icon(Icons.settings, color: AppColors.blackColor),
-                title: Text('Configurações', style: AppTheme.blackTextStyle),
-                onTap: () {
-                  Navigator.pop(context);
-                  showSettingsBottomSheet(context, ref);
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
       body: navigationShell,
       bottomNavigationBar: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
