@@ -8,6 +8,7 @@ import 'package:social_media_app/core/providers/repository_providers.dart';
 import 'package:social_media_app/ui/widgets/create_post_sheet.dart';
 import 'package:social_media_app/ui/widgets/custom_app_bar.dart';
 import 'package:social_media_app/ui/widgets/facebook_post_card.dart';
+import 'package:social_media_app/ui/widgets/settings_bottom_sheet.dart';
 
 class HomePage extends ConsumerWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -23,8 +24,6 @@ class HomePage extends ConsumerWidget {
 
     final feedState = ref.watch(feedProvider);
 
-    // Sem Scaffold aqui de propósito: o único Scaffold da árvore é o do
-    // MainScaffold (ShellRoute), que já contém o Drawer.
     return SafeArea(
       child: RefreshIndicator(
         color: AppColors.purpleColor,
@@ -36,7 +35,7 @@ class HomePage extends ConsumerWidget {
             child: Column(
               children: [
                 const SizedBox(height: 12),
-                _buildCustomAppBar(context),
+                _buildCustomAppBar(context, ref),
                 const SizedBox(height: 18),
                 _buildComposerTrigger(context),
                 const SizedBox(height: 18),
@@ -68,18 +67,27 @@ class HomePage extends ConsumerWidget {
     );
   }
 
-  CustomAppBar _buildCustomAppBar(BuildContext context) {
+  CustomAppBar _buildCustomAppBar(BuildContext context, WidgetRef ref) {
     return CustomAppBar(
       child: Row(
         children: [
-          IconButton(
-            icon: const Icon(Icons.menu_rounded),
-            onPressed: () => Scaffold.of(context).openDrawer(),
+          Text(
+            'Social',
+            style: AppTheme.blackTextStyle.copyWith(fontSize: 20, fontWeight: AppTheme.bold),
           ),
           const Spacer(),
           Image.asset("assets/images/ic_notification.png", width: 24, height: 24),
           const SizedBox(width: 12),
           Image.asset("assets/images/ic_search.png", width: 24, height: 24),
+          const SizedBox(width: 12),
+          InkWell(
+            borderRadius: BorderRadius.circular(20),
+            onTap: () => showSettingsBottomSheet(context, ref),
+            child: const Padding(
+              padding: EdgeInsets.all(2),
+              child: Icon(Icons.settings_outlined, color: AppColors.blackColor, size: 24),
+            ),
+          ),
         ],
       ),
     );
