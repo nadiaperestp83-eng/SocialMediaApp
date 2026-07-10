@@ -38,6 +38,18 @@ class ProfilePage extends ConsumerWidget {
                   const SizedBox(height: 12),
                   Text('Não foi possível carregar o perfil', style: AppTheme.blackTextStyle),
                   const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.backgroundColor,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      'ERRO REAL (diagnóstico): $err',
+                      style: AppTheme.blackTextStyle.copyWith(fontSize: 12, color: AppColors.dangerColor),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
                   OutlinedButton(
                     onPressed: () => ref.read(myProfileProvider.notifier).refresh(),
                     child: const Text('Tentar novamente'),
