@@ -4,7 +4,7 @@ publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"
+  sdk: ">=3.4.0 <4.0.0"
 
 dependencies:
   flutter:
@@ -13,7 +13,6 @@ dependencies:
   cupertino_icons: ^1.0.5
   google_fonts: ^6.1.0
   flutter_blurhash: ^0.7.0
-
   flutter_riverpod: 2.6.1
   go_router: 14.6.2
   supabase_flutter: 2.8.0
@@ -23,14 +22,14 @@ dependencies:
   sqflite: ^2.4.1
   path_provider: ^2.1.4
   path: ^1.9.0
+  # Versão estável que não quebra o build no CI
+  app_links: 6.3.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
 
-dependency_overrides:
-  app_links: 7.0.0   # 👈 fixa exatamente 7.0.0 (não ^)
 flutter:
   uses-material-design: true
   assets:
