@@ -102,7 +102,8 @@ class _ProfileContentState extends ConsumerState<_ProfileContent> {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Padding(
-        padding: const EdgeInsets.only(right: 24, left: 24, top: 30),
+        // bottom: 110 -> espaço pra navbar flutuante não cobrir o conteúdo
+        padding: const EdgeInsets.fromLTRB(24, 30, 24, 110),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
@@ -138,8 +139,6 @@ class _ProfileContentState extends ConsumerState<_ProfileContent> {
       ),
     );
   }
-
-  // ---------- topo (idêntico ao mock original) ----------
 
   Widget _buildAgeCityRow() {
     final chips = <Widget>[];
@@ -219,8 +218,6 @@ class _ProfileContentState extends ConsumerState<_ProfileContent> {
     );
   }
 
-  // ---------- novo: abas Posts / Fotos ----------
-
   Widget _buildTabBar() {
     Widget tab(String label, int index) {
       final selected = _selectedTab == index;
@@ -254,8 +251,6 @@ class _ProfileContentState extends ConsumerState<_ProfileContent> {
       child: Row(children: [tab('Posts', 0), tab('Fotos', 1)]),
     );
   }
-
-  // ---------- aba Posts: Amigos + prévia de Fotos + posts ----------
 
   Widget _buildPostsTab() {
     return Column(
