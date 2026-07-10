@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -20,9 +19,42 @@ import 'package:social_media_app/ui/widgets/main_scaffold.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: '.env');
+
+  if (SupabaseConfig.url.isEmpty || SupabaseConfig.anonKey.isEmpty) {
+    runApp(const _MissingConfigApp());
+    return;
+  }
+
   await Supabase.initialize(url: SupabaseConfig.url, anonKey: SupabaseConfig.anonKey);
   runApp(const ProviderScope(child: MyApp()));
+}
+
+/// Tela exibida só se o build foi feito sem os --dart-define do Supabase.
+/// Evita o app crashar sem explicação nenhuma.
+class _MissingConfigApp extends StatelessWidget {
+  const _MissingConfigApp();
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(
+          child: Padding(
+            padding: EdgeInsets.all(24),
+            child: Text(
+              'Build sem as credenciais do Supabase.\n\n'
+              'Confirme os Secrets SUPABASE_URL e SUPABASE_ANON_KEY no GitHub '
+              'e rode o workflow novamente.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 16, color: Colors.black87),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
