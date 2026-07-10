@@ -31,7 +31,8 @@ class HomePage extends ConsumerWidget {
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            // bottom: 100 -> espaço pra navbar flutuante não cobrir o conteúdo
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
             child: Column(
               children: [
                 const SizedBox(height: 12),
