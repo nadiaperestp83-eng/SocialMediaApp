@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:social_media_app/app/configs/colors.dart';
-import 'package:social_media_app/app/configs/theme.dart';
 import 'package:social_media_app/core/providers/chat_providers.dart';
+import 'package:social_media_app/ui/widgets/custom_floating_nav_bar.dart';
 
 class MainScaffold extends ConsumerWidget {
   final StatefulNavigationShell navigationShell;
@@ -19,58 +19,26 @@ class MainScaffold extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.whiteColor,
-      body: navigationShell,
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: AppColors.whiteColor,
-          boxShadow: [BoxShadow(color: AppColors.blackColor.withOpacity(0.08), blurRadius: 20, offset: const Offset(0, -4))],
-        ),
-        child: SafeArea(
-          top: false,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _NavItem(icon: Icons.home_rounded, label: 'Feed', selected: navigationShell.currentIndex == 0,
-                  onTap: () => navigationShell.goBranch(0)),
-              _NavItem(icon: Icons.people_alt_rounded, label: 'Amigos', selected: navigationShell.currentIndex == 1,
-                  onTap: () => navigationShell.goBranch(1)),
-              _NavItem(icon: Icons.chat_bubble_rounded, label: 'Chat', selected: navigationShell.currentIndex == 2,
-                  onTap: () => navigationShell.goBranch(2)),
-              _NavItem(icon: Icons.person_rounded, label: 'Perfil', selected: navigationShell.currentIndex == 3,
-                  onTap: () => navigationShell.goBranch(3)),
-            ],
+      body: Stack(
+        children: [
+          // Camada inferior: o conteúdo de cada aba ocupa a tela inteira,
+          // rolando por baixo da navbar flutuante.
+          navigationShell,
+
+          // Camada superior: navbar flutuante estilo cápsula.
+          Positioned(
+            bottom: 20,
+            left: 20,
+            right: 20,
+            child: SafeArea(
+              top: false,
+              child: CustomFloatingNavBar(
+                currentIndex: navigationShell.currentIndex,
+                onTap: (index) => navigationShell.goBranch(index),
+              ),
+            ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _NavItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  const _NavItem({required this.icon, required this.label, required this.selected, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    final color = selected ? AppColors.purpleColor : AppColors.greyColor;
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, color: color, size: 24),
-            const SizedBox(height: 4),
-            Text(label, style: AppTheme.blackTextStyle.copyWith(fontSize: 11, fontWeight: AppTheme.semiBold, color: color)),
-          ],
-        ),
+        ],
       ),
     );
   }
